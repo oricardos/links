@@ -6,11 +6,15 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
+import { useState } from "react";
 
 export default function Add() {
 
-    const handlePress = () => {
-        Alert.alert('Deu mole', 'Clicou, mamou')
+    const [name, setName] = useState<string>('');
+    const [url, setUrl] = useState<string>('');
+
+    function handleAdd() {
+
     }
 
     return (
@@ -31,9 +35,9 @@ export default function Add() {
             <Categories />
 
             <View style={styles.form}>
-                <Input placeholder="Nome" onChangeText={console.log} />
-                <Input placeholder="Url" />
-                <Button title="Adicionar" onPress={handlePress} />
+                <Input placeholder="Nome" onChangeText={setName} />
+                <Input placeholder="Url" onChangeText={setUrl} />
+                <Button title="Adicionar" onPress={handleAdd} />
             </View>
         </View>
     )
