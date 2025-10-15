@@ -14,7 +14,17 @@ export default function Add() {
     const [url, setUrl] = useState<string>('');
 
     function handleAdd() {
+        if (!category) {
+            return Alert.alert('Categoria', 'Selecione uma categoria')
+        }
 
+        if (!name.trim()) {
+            return Alert.alert('Nome', 'Preencha o nome')
+        }
+
+        if (!url.trim()) {
+            return Alert.alert('URL', 'Preencha a URL')
+        }
     }
 
     return (
@@ -36,7 +46,7 @@ export default function Add() {
 
             <View style={styles.form}>
                 <Input placeholder="Nome" onChangeText={setName} />
-                <Input placeholder="Url" onChangeText={setUrl} />
+                <Input placeholder="URL" onChangeText={setUrl} />
                 <Button title="Adicionar" onPress={handleAdd} />
             </View>
         </View>
