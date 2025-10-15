@@ -11,8 +11,9 @@ type Props = PressableProps & {
 
 export function Category({ name, isSelected, icon, ...props }: Props) {
     const color = isSelected ? colors.green[300] : colors.gray[400]
+    const backgroundColor = isSelected ? '#1b7e72' : ''
     return (
-        <Pressable style={styles.container} {...props}>
+        <Pressable style={[styles.container, { backgroundColor }]} {...props}>
             <MaterialIcons name={icon} size={16} color={color} />
             <Text style={[styles.name, { color }]}>{name}</Text>
         </Pressable>

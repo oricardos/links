@@ -9,7 +9,7 @@ import styles from "./styles";
 import { useState } from "react";
 
 export default function Add() {
-
+    const [category, setCategory] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [url, setUrl] = useState<string>('');
 
@@ -32,7 +32,7 @@ export default function Add() {
             </View>
 
             <Text style={styles.label}>Selecione uma categoria</Text>
-            <Categories />
+            <Categories onChange={setCategory} selected={category} />
 
             <View style={styles.form}>
                 <Input placeholder="Nome" onChangeText={setName} />
