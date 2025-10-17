@@ -7,23 +7,40 @@ import { router } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useState } from "react";
+import { linkStorage } from "@/storage/link-storage";
 
 export default function Add() {
     const [category, setCategory] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [url, setUrl] = useState<string>('');
 
-    function handleAdd() {
-        if (!category) {
-            return Alert.alert('Categoria', 'Selecione uma categoria')
-        }
+    async function handleAdd() {
+        try {
+            if (!category) {
+                return Alert.alert('Categoria', 'Selecione uma categoria')
+            }
 
-        if (!name.trim()) {
-            return Alert.alert('Nome', 'Preencha o nome')
-        }
+            if (!name.trim()) {
+                return Alert.alert('Nome', 'Preencha o nome')
+            }
 
-        if (!url.trim()) {
-            return Alert.alert('URL', 'Preencha a URL')
+            if (!url.trim()) {
+                return Alert.alert('URL', 'Preencha a URL')
+            }
+
+            await linkStorage.save({
+                id: new Date().getTime().toString(),
+                name,
+                url,
+                category
+            })
+
+            Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
+                { text: 'Ok', onPress: () => router.back() }
+            ])
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Erro', 'Não foi possível adicionar o link')
         }
     }
 
@@ -46,7 +63,7 @@ export default function Add() {
 
             <View style={styles.form}>
                 <Input placeholder="Nome" onChangeText={setName} />
-                <Input placeholder="URL" onChangeText={setUrl} />
+                <Input placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
                 <Button title="Adicionar" onPress={handleAdd} />
             </View>
         </View>

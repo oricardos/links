@@ -16,7 +16,7 @@ export function Link({ name, url, onDetails }: Props) {
                 <Text style={styles.name} numberOfLines={1}>
                     {name}
                 </Text>
-                <Text style={styles.url}>
+                <Text style={styles.url} numberOfLines={1}>
                     {url}
                 </Text>
             </View>

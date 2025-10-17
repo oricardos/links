@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
         color: colors.gray[400],
         fontSize: 14,
         paddingHorizontal: 24,
+        marginBottom: 12,
     },
     form: {
         paddingHorizontal: 20,
