@@ -47,7 +47,6 @@ export default function Index() {
     }
 
     function handleRemove() {
-        console.log('remover')
         Alert.alert('Excluir link', 'Tem certeza que deseja excluir este link?', [
             { text: 'Cancelar', style: 'cancel' },
             { text: 'Excluir', style: 'destructive', onPress: () => removeLink() }
