@@ -1,19 +1,28 @@
-using Microsoft.AspNetCore.OpenApi; // novo namespace para AddOpenApi
-using Swashbuckle.AspNetCore.SwaggerUI; // garante acesso ao UseSwaggerUI
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using LinksApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi(); // novo registro do .NET 10
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
+
+builder.Services.AddOpenApi(); 
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    // Novo endpoint OpenAPI (gera /openapi/v1.json)
+    app.UseDeveloperExceptionPage();
     app.MapOpenApi();
 
-    // UI clássica do Swagger (usando pacote separado)
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/openapi/v1.json", "Links API v1");

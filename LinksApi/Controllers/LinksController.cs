@@ -16,6 +16,13 @@ namespace LinksApi.Controllers
             _context = context;
         }
 
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("Controller funcionando");
+        }
+
+
         //GET: api/links
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Link>>> GetLinks()
@@ -40,6 +47,7 @@ namespace LinksApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Link>> CreateLink(Link link)
         {
+            Console.WriteLine($"POST recebido: {link.Name} - {link.Url}");
             _context.Links.Add(link);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetLink), new { id = link.Id }, link);
