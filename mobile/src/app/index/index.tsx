@@ -6,16 +6,43 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { categories } from '@/utils/categories'
 import { LinkStorage, linkStorage } from '@/storage/link-storage'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import api from '@/services/api'
+
+interface Link {
+    id: number;
+    name: string;
+    url: string;
+    category: string;
+}
 
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
-    const [links, setLinks] = useState<LinkStorage[]>([]);
+    const [links, setLinks] = useState<LinkStorage[] | Link[]>([]);
     const [link, setLink] = useState<LinkStorage | null>(null);
-    const [showModal, setShowModal] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [urls, setUrls] = useState<Link[]>()
+
+    async function getAllLinks() {
+        setLoading(true);
+        try {
+            const response = await api.get<Link[]>('/links');
+            setLinks(response.data)
+            console.log('response', response)
+        } catch (error: any) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        getAllLinks();
+    }, [])
 
     async function getLinks() {
         try {
@@ -62,9 +89,9 @@ export default function Index() {
         }
     }
 
-    useFocusEffect(useCallback(() => {
-        getLinks();
-    }, [category]))
+    // useFocusEffect(useCallback(() => {
+    //     getLinks();
+    // }, [category]))
 
     return (
         <View style={styles.container}>
@@ -82,21 +109,23 @@ export default function Index() {
 
             <Categories onChange={setCategory} selected={category} />
 
+            {loading ? <Text>Carregando</Text> :
 
-            <FlatList
-                style={styles.links}
-                contentContainerStyle={styles.linksContent}
-                showsVerticalScrollIndicator={false}
-                data={links}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Link
-                        name={item.name}
-                        url={item.url}
-                        onDetails={() => handleDetails(item)}
-                    />
-                )}
-            />
+                <FlatList
+                    style={styles.links}
+                    contentContainerStyle={styles.linksContent}
+                    showsVerticalScrollIndicator={false}
+                    data={links}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <Link
+                            name={item.name}
+                            url={item.url}
+                            onDetails={() => handleDetails(item)}
+                        />
+                    )}
+                />
+            }
 
             <Modal transparent visible={showModal} animationType='slide'>
                 <View style={styles.modal}>
