@@ -7,8 +7,27 @@ import { router } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useState } from "react";
-import { linkStorage } from "@/storage/link-storage";
 import api from "@/services/api";
+import * as yup from 'yup';
+
+const schema = yup.object().shape({
+    url: yup
+        .string()
+        .test('is-url', 'Digite uma URL válida', (value) => {
+            try {
+                new URL(
+                    value?.startsWith('http')
+                        ? value
+                        : `http://${value}`
+                )
+                return true
+            } catch {
+                return false
+            }
+        })
+        .url('Digite uma URL válida')
+        .required('A URL é obrigatória'),
+})
 
 export default function Add() {
     const [category, setCategory] = useState<string>('');
@@ -30,20 +49,19 @@ export default function Add() {
                 return Alert.alert('URL', 'Preencha a URL')
             }
 
-            const random = Math.random() * 10 - 1
+            try {
+                await schema.validate({ url })
+            } catch (error: any) {
+                return Alert.alert('URL inválida', error.message)
+            }
+
+
 
             await api.post('/links', {
                 name,
                 url,
                 category
             })
-
-            // await linkStorage.save({
-            //     id: new Date().getTime().toString(),
-            //     name,
-            //     url,
-            //     category
-            // })
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
