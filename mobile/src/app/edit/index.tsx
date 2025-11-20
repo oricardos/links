@@ -3,39 +3,20 @@ import { Categories } from "@/components/categories";
 import { Input } from "@/components/input";
 import { colors } from "@/styles/colors";
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "@/services/api";
-import * as yup from 'yup';
 
-const schema = yup.object().shape({
-    url: yup
-        .string()
-        .test('is-url', 'Digite uma URL válida', (value) => {
-            try {
-                new URL(
-                    value?.startsWith('http')
-                        ? value
-                        : `http://${value}`
-                )
-                return true
-            } catch {
-                return false
-            }
-        })
-        .url('Digite uma URL válida')
-        .required('A URL é obrigatória'),
-})
-
-export default function Add() {
+export default function Edit() {
+    const { link } = useLocalSearchParams();
+    const parsedLink = JSON.parse(link as string);
     const [category, setCategory] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [url, setUrl] = useState<string>('');
 
-    async function handleAdd() {
-        console.log('add')
+    async function handleEdit() {
         try {
             if (!category) {
                 return Alert.alert('Categoria', 'Selecione uma categoria')
@@ -49,21 +30,14 @@ export default function Add() {
                 return Alert.alert('URL', 'Preencha a URL')
             }
 
-            try {
-                await schema.validate({ url })
-            } catch (error: any) {
-                return Alert.alert('URL inválida', error.message)
-            }
-
-
-
-            await api.post('/links', {
+            await api.put(`/links/${parsedLink.id}`, {
+                id: parsedLink.id,
                 name,
                 url,
                 category
             })
 
-            Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
+            Alert.alert('Sucesso', 'Link editado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
             ])
         } catch (error) {
@@ -71,6 +45,15 @@ export default function Add() {
             Alert.alert('Erro', 'Não foi possível adicionar o link')
         }
     }
+
+    useEffect(() => {
+        if (parsedLink) {
+            setName(parsedLink.name);
+            setUrl(parsedLink.url);
+            setCategory(parsedLink.category);
+        }
+    }, []);
+
 
     return (
         <View style={styles.container}>
@@ -83,16 +66,16 @@ export default function Add() {
                     />
                 </TouchableOpacity>
 
-                <Text style={styles.title}>Novo</Text>
+                <Text style={styles.title}>Editar</Text>
             </View>
 
             <Text style={styles.label}>Selecione uma categoria</Text>
-            <Categories onChange={setCategory} selected={category} />
+            <Categories onChange={setCategory} selected={parsedLink.category || category} />
 
             <View style={styles.form}>
-                <Input placeholder="Nome" onChangeText={setName} />
-                <Input placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
-                <Button title="Adicionar" onPress={handleAdd} />
+                <Input value={name} placeholder="Nome" onChangeText={setName} />
+                <Input value={url} placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
+                <Button title="Editar" onPress={handleEdit} />
             </View>
         </View>
     )

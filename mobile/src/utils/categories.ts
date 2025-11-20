@@ -9,6 +9,9 @@ type Category = {
 
 export const categories: Category[] = [
     {
+        id: '0', name: 'Todas', icon: 'code'
+    },
+    {
         id: '1', name: 'Curso', icon: 'code'
     },
     {

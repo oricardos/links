@@ -1,6 +1,0 @@
-@LinksApi_HostAddress = http://localhost:5147
-
-GET {{LinksApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

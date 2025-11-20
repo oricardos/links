@@ -6,16 +6,37 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View } from 'react-native'
 import styles from './styles'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { categories } from '@/utils/categories'
 import { LinkStorage, linkStorage } from '@/storage/link-storage'
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry'
+import api from '@/services/api'
+
+export interface Link {
+    id: number;
+    name: string;
+    url: string;
+    category: string;
+}
 
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
-    const [links, setLinks] = useState<LinkStorage[]>([]);
+    const [links, setLinks] = useState<LinkStorage[] | Link[]>([]);
     const [link, setLink] = useState<LinkStorage | null>(null);
-    const [showModal, setShowModal] = useState<boolean>(false)
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    async function getAllLinks() {
+        setLoading(true);
+        try {
+            const response = await api.get<Link[]>('/links');
+            setLinks(response.data)
+            // console.log('response', response)
+        } catch (error: any) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     async function getLinks() {
         try {
@@ -36,18 +57,19 @@ export default function Index() {
     }
 
     async function removeLink() {
+        console.log(link?.id)
         try {
-            await linkStorage.remove(link!.id);
-            getLinks();
+            await api.delete(`/links/${link?.id}`)
+            getAllLinks();
             setShowModal(false);
 
         } catch (error) {
-            Alert.alert('Erro', 'Não foi possível remover o link')
+            Alert.alert('Erro', `Não foi possível remover o link. ${error}`)
         }
     }
 
     function handleRemove() {
-        Alert.alert('Excluir link', 'Tem certeza que deseja excluir este link?', [
+        Alert.alert('Excluir link', `Tem certeza que deseja excluir o link ${link?.name}?`, [
             { text: 'Cancelar', style: 'cancel' },
             { text: 'Excluir', style: 'destructive', onPress: () => removeLink() }
         ])
@@ -62,8 +84,26 @@ export default function Index() {
         }
     }
 
+    function edit() {
+        setShowModal(false)
+        try {
+            if (!link) {
+                console.log('não existe link')
+            }
+
+            console.log('LINK: ', { link })
+
+            router.navigate({
+                pathname: '/edit',
+                params: { link: JSON.stringify(link) }
+            })
+        } catch (error) {
+            Alert.alert('Erro', 'Houve um erro')
+        }
+    }
+
     useFocusEffect(useCallback(() => {
-        getLinks();
+        getAllLinks();
     }, [category]))
 
     return (
@@ -82,21 +122,25 @@ export default function Index() {
 
             <Categories onChange={setCategory} selected={category} />
 
+            {loading ? <Text>Carregando</Text> :
 
-            <FlatList
-                style={styles.links}
-                contentContainerStyle={styles.linksContent}
-                showsVerticalScrollIndicator={false}
-                data={links}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <Link
-                        name={item.name}
-                        url={item.url}
-                        onDetails={() => handleDetails(item)}
-                    />
-                )}
-            />
+                <FlatList
+                    style={styles.links}
+                    contentContainerStyle={styles.linksContent}
+                    showsVerticalScrollIndicator={false}
+                    data={links}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <Link
+                            name={item.name}
+                            url={item.url}
+                            onDetails={() => handleDetails(item)}
+                        />
+                    )}
+                    refreshing={loading}
+                    onRefresh={getAllLinks}
+                />
+            }
 
             <Modal transparent visible={showModal} animationType='slide'>
                 <View style={styles.modal}>
@@ -117,6 +161,7 @@ export default function Index() {
 
                         <View style={styles.modalFooter}>
                             <Option name='Excluir' icon='delete' variant='secondary' onPress={handleRemove} />
+                            <Option name='Editar' icon='edit' variant='secondary' onPress={edit} />
                             <Option name='Abrir' icon='language' onPress={handleOpenLink} />
                         </View>
                     </View>
