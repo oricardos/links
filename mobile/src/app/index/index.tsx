@@ -29,8 +29,8 @@ export default function Index() {
         setLoading(true);
         try {
             const response = await api.get<Link[]>('/links');
-            setLinks(response.data)
-            // console.log('response', response)
+            setLinks(response?.data?.data)
+            console.log('response', response)
         } catch (error: any) {
             console.error(error)
         } finally {

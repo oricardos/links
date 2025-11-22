@@ -42,7 +42,7 @@ export default function Add() {
             }
 
             if (!name.trim()) {
-                return Alert.alert('Nome', 'Preencha o nome')
+                return Alert.alert('Nome', 'Preencha o campo nome')
             }
 
             if (!url.trim()) {
