@@ -33,7 +33,7 @@ const schema = yup.object().shape({
         })
         .url('Digite uma URL válida')
         .required('A URL é obrigatória'),
-})
+});
 
 export default function Add() {
     const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
@@ -43,29 +43,27 @@ export default function Add() {
         const { name, url } = data;
         try {
             if (!category) {
-                return Alert.alert('Categoria', 'Selecione uma categoria')
-            }
+                return Alert.alert('Categoria', 'Selecione uma categoria');
+            };
 
             try {
-                await schema.validate({ url })
+                await schema.validate({ url });
             } catch (error: any) {
-                return Alert.alert('URL inválida', error.message)
-            }
-
-
+                return Alert.alert('URL inválida', error.message);
+            };
 
             await api.post('/links', {
                 name,
                 url,
                 category
-            })
+            });
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
-            ])
+            ]);
         } catch (error) {
             console.error(error);
-            Alert.alert('Erro', 'Não foi possível adicionar o link')
+            Alert.alert('Erro', 'Não foi possível adicionar o link');
         }
     }
 
