@@ -26,6 +26,13 @@ const styles = StyleSheet.create({
     form: {
         paddingHorizontal: 20,
         gap: 16
+    },
+    inputError: {
+        borderColor: 'red',
+    },
+    textError: {
+        color: 'red',
+        marginBottom: 8,
     }
 })
 
