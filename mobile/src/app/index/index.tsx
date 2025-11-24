@@ -29,25 +29,11 @@ export default function Index() {
         setLoading(true);
         try {
             const response = await api.get<Link[]>('/links');
-            setLinks(response.data)
-            // console.log('response', response)
+            setLinks(response?.data?.data);
         } catch (error: any) {
             console.error(error)
         } finally {
             setLoading(false)
-        }
-    }
-
-    async function getLinks() {
-        try {
-            const response = await linkStorage.get();
-
-            const filteredLinks = response.filter(link => link.category === category)
-
-            setLinks(filteredLinks)
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Erro', 'Não foi possível carregar os links')
         }
     }
 
@@ -57,7 +43,6 @@ export default function Index() {
     }
 
     async function removeLink() {
-        console.log(link?.id)
         try {
             await api.delete(`/links/${link?.id}`)
             getAllLinks();
@@ -88,10 +73,8 @@ export default function Index() {
         setShowModal(false)
         try {
             if (!link) {
-                console.log('não existe link')
+                Alert.alert('Erro', 'Este link não existe mais.')
             }
-
-            console.log('LINK: ', { link })
 
             router.navigate({
                 pathname: '/edit',
@@ -104,7 +87,7 @@ export default function Index() {
 
     useFocusEffect(useCallback(() => {
         getAllLinks();
-    }, [category]))
+    }, [category]));
 
     return (
         <View style={styles.container}>

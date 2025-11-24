@@ -8,7 +8,13 @@ import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useState } from "react";
 import api from "@/services/api";
+import { useForm, Controller } from "react-hook-form";
 import * as yup from 'yup';
+
+interface FormData {
+    name: string;
+    url: string;
+}
 
 const schema = yup.object().shape({
     url: yup
@@ -27,48 +33,37 @@ const schema = yup.object().shape({
         })
         .url('Digite uma URL válida')
         .required('A URL é obrigatória'),
-})
+});
 
 export default function Add() {
-    const [category, setCategory] = useState<string>('');
-    const [name, setName] = useState<string>('');
-    const [url, setUrl] = useState<string>('');
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
+    const [category, setCategory] = useState('');
 
-    async function handleAdd() {
-        console.log('add')
+    async function handleAdd(data: FormData) {
+        const { name, url } = data;
         try {
             if (!category) {
-                return Alert.alert('Categoria', 'Selecione uma categoria')
-            }
-
-            if (!name.trim()) {
-                return Alert.alert('Nome', 'Preencha o nome')
-            }
-
-            if (!url.trim()) {
-                return Alert.alert('URL', 'Preencha a URL')
-            }
+                return Alert.alert('Categoria', 'Selecione uma categoria');
+            };
 
             try {
-                await schema.validate({ url })
+                await schema.validate({ url });
             } catch (error: any) {
-                return Alert.alert('URL inválida', error.message)
-            }
-
-
+                return Alert.alert('URL inválida', error.message);
+            };
 
             await api.post('/links', {
                 name,
                 url,
                 category
-            })
+            });
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
-            ])
+            ]);
         } catch (error) {
             console.error(error);
-            Alert.alert('Erro', 'Não foi possível adicionar o link')
+            Alert.alert('Erro', 'Não foi possível adicionar o link');
         }
     }
 
@@ -90,9 +85,58 @@ export default function Add() {
             <Categories onChange={setCategory} selected={category} />
 
             <View style={styles.form}>
-                <Input placeholder="Nome" onChangeText={setName} />
-                <Input placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
-                <Button title="Adicionar" onPress={handleAdd} />
+                <Controller
+                    control={control}
+                    name="name"
+                    rules={{
+                        required: 'Este campo é obrigatório',
+                        maxLength: {
+                            value: 120,
+                            message: 'A URL deve ter no máximo 20 caracteres'
+                        }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                        <>
+                            <Input
+                                placeholder="Nome"
+                                value={value}
+                                onChangeText={onChange}
+                            />
+                            {errors?.name?.type === 'required' && <Text style={styles.textError}>{errors?.name?.message}</Text>}
+                        </>
+                    )}
+
+                />
+
+                <Controller
+                    control={control}
+                    name="url"
+                    rules={{
+                        required: 'Este campo é obrigatório',
+                        maxLength: {
+                            value: 2000,
+                            message: 'A URL deve ter no máximo 20 caracteres'
+                        }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                        <>
+                            <Input
+                                placeholder="URL"
+                                value={value}
+                                onChangeText={onChange}
+                                autoCorrect={false}
+                                autoCapitalize="none"
+                            />
+                            {errors?.url && <Text style={styles.textError}>{errors?.url?.message}</Text>}
+                        </>
+
+                    )}
+                />
+
+
+
+
+                <Button title="Adicionar" onPress={() => handleSubmit(handleAdd)()} />
             </View>
         </View>
     )
