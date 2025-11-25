@@ -92,7 +92,7 @@ export default function Add() {
                         required: 'Este campo é obrigatório',
                         maxLength: {
                             value: 120,
-                            message: 'A URL deve ter no máximo 20 caracteres'
+                            message: 'O Nome deve ter no máximo 120 caracteres'
                         }
                     }}
                     render={({ field: { onChange, value } }) => (
@@ -101,11 +101,11 @@ export default function Add() {
                                 placeholder="Nome"
                                 value={value}
                                 onChangeText={onChange}
+                                style={errors?.name && styles.inputError}
                             />
-                            {errors?.name?.type === 'required' && <Text style={styles.textError}>{errors?.name?.message}</Text>}
+                            {errors?.name && <Text style={styles.textError}>{errors?.name?.message}</Text>}
                         </>
                     )}
-
                 />
 
                 <Controller
@@ -124,6 +124,7 @@ export default function Add() {
                                 placeholder="URL"
                                 value={value}
                                 onChangeText={onChange}
+                                style={errors?.url && styles.inputError}
                                 autoCorrect={false}
                                 autoCapitalize="none"
                             />
