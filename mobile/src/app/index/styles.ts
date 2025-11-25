@@ -2,6 +2,11 @@ import { StyleSheet } from 'react-native'
 import { colors } from '../../styles/colors'
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     container: {
         flex: 1,
         paddingTop: 62
@@ -23,8 +28,8 @@ const styles = StyleSheet.create({
         width: 38
     },
     links: {
-        borderTopWidth: 1,
-        borderTopColor: colors.gray[600]
+        // borderTopWidth: 1,
+        // borderTopColor: colors.gray[600]
     },
     linksContent: {
         gap: 20,

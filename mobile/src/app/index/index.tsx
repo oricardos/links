@@ -4,7 +4,7 @@ import { Option } from '@/components/option'
 import { colors } from '@/styles/colors'
 import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
-import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import styles from './styles'
 import { useCallback, useEffect, useState } from 'react'
 import { categories } from '@/utils/categories'
@@ -105,8 +105,11 @@ export default function Index() {
 
             <Categories onChange={setCategory} selected={category} />
 
-            {loading ? <Text>Carregando</Text> :
-
+            {loading ?
+                <View
+                    style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.green[300]} />
+                </View> :
                 <FlatList
                     style={styles.links}
                     contentContainerStyle={styles.linksContent}
