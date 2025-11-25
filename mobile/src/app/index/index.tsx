@@ -29,6 +29,7 @@ export default function Index() {
         setLoading(true);
         try {
             const response = await api.get<Link[]>('/links');
+            console.log(response?.data?.data);
             setLinks(response?.data?.data);
         } catch (error: any) {
             console.error(error)
@@ -120,6 +121,7 @@ export default function Index() {
                         <Link
                             name={item.name}
                             url={item.url}
+                            category={item.category}
                             onDetails={() => handleDetails(item)}
                         />
                     )}

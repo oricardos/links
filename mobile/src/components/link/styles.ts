@@ -12,6 +12,10 @@ export const styles = StyleSheet.create({
     details: {
         flex: 1,
     },
+    head: {
+        flexDirection: 'row',
+        gap: 8,
+    },
     name: {
         color: colors.gray[100],
         fontSize: 16,
