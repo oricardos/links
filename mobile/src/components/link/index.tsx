@@ -2,7 +2,7 @@ import { colors } from "@/styles/colors"
 import { MaterialIcons } from "@expo/vector-icons"
 import { Text, TouchableOpacity, View } from "react-native"
 import { styles } from "./styles"
-import { categories } from "@/utils/categories"
+import { getCategory } from "@/utils/getCategory"
 
 type Props = {
     name: string
@@ -12,13 +12,11 @@ type Props = {
 }
 
 export function Link({ name, url, category, onDetails }: Props) {
-    const getCategory = categories.find(cat => cat.name === category)
-
     return (
         <TouchableOpacity style={styles.container} onPress={onDetails}>
             <View style={styles.details}>
                 <View style={styles.head}>
-                    <MaterialIcons name={getCategory?.icon} size={20} color={colors.green[300]} />
+                    <MaterialIcons name={getCategory(category)?.icon} size={20} color={colors.green[300]} />
                     <Text style={styles.name} numberOfLines={1}>
                         {name}
                     </Text>

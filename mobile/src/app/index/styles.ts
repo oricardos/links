@@ -49,10 +49,15 @@ const styles = StyleSheet.create({
 
     },
     modalHeader: {
-        width: '100%',
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 32
+        marginBottom: 32,
+        marginRight: 24
+    },
+    headerCategory: {
+        flexDirection: 'row',
+        gap: 8,
     },
     modalCategory: {
         flex: 1,

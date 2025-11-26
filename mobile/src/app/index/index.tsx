@@ -9,6 +9,7 @@ import styles from './styles'
 import { useCallback, useState } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
+import { getCategory } from '@/utils/getCategory'
 
 export interface Link {
     id: number;
@@ -145,8 +146,11 @@ export default function Index() {
                 <View style={styles.modal}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalCategory}>{link?.category}</Text>
-                            <TouchableOpacity onPress={() => setShowModal(false)}>
+                            <View style={styles.headerCategory}>
+                                <MaterialIcons name={getCategory(category)?.icon} size={20} color={colors.green[300]} />
+                                <Text style={styles.modalCategory}>{link?.category}</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => setShowModal(false)} style={{ width: 'auto' }}>
                                 <MaterialIcons name='close' size={20} color={colors.gray[400]} />
                             </TouchableOpacity>
                         </View>
