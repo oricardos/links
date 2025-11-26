@@ -15,7 +15,7 @@ export function Link({ name, url, category, onDetails }: Props) {
     const getCategory = categories.find(cat => cat.name === category)
 
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={onDetails}>
             <View style={styles.details}>
                 <View style={styles.head}>
                     <MaterialIcons name={getCategory?.icon} size={20} color={colors.green[300]} />
@@ -27,9 +27,7 @@ export function Link({ name, url, category, onDetails }: Props) {
                     {url}
                 </Text>
             </View>
-            <TouchableOpacity onPress={onDetails}>
-                <MaterialIcons name='more-horiz' size={20} color={colors.gray[400]} />
-            </TouchableOpacity>
-        </View>
+            <MaterialIcons name='more-horiz' size={20} color={colors.gray[400]} />
+        </TouchableOpacity>
     )
 }
