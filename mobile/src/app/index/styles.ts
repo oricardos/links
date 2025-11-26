@@ -78,6 +78,31 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: colors.gray[600],
         paddingVertical: 14
+    },
+    listEmpty: {
+        height: '100%',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    listEmptyText: {
+        textAlign: 'center',
+        fontSize: 24,
+        color: '#747474ff'
+    },
+    addButton: {
+        backgroundColor: colors.green[300],
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        marginTop: 24,
+        gap: 8
+    },
+    addButtonText: {
+        fontSize: 18,
+        color: colors.gray[950]
     }
 })
 

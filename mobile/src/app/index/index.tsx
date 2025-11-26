@@ -125,6 +125,19 @@ export default function Index() {
                     )}
                     refreshing={loading}
                     onRefresh={getAllLinks}
+                    ListEmptyComponent={
+                        <View style={styles.listEmpty}>
+                            <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
+                            <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                <MaterialIcons
+                                    name='add'
+                                    size={32}
+                                    color={colors.gray[950]}
+                                />
+                                <Text style={styles.addButtonText}>Adicionar link</Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
                 />
             }
 
