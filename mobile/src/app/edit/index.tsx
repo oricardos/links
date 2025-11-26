@@ -7,7 +7,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useEffect, useState } from "react";
-import api from "@/services/api";
+import { request } from "@/services/links";
 
 export default function Edit() {
     const { link } = useLocalSearchParams();
@@ -30,12 +30,7 @@ export default function Edit() {
                 return Alert.alert('URL', 'Preencha a URL')
             }
 
-            await api.put(`/links/${parsedLink.id}`, {
-                id: parsedLink.id,
-                name,
-                url,
-                category
-            })
+            await request.editLink(parsedLink.id, name, url, category)
 
             Alert.alert('Sucesso', 'Link editado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }

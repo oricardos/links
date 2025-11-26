@@ -7,9 +7,9 @@ import { router } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useState } from "react";
-import api from "@/services/api";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from 'yup';
+import { request } from "@/services/links";
 
 interface FormData {
     name: string;
@@ -52,11 +52,7 @@ export default function Add() {
                 return Alert.alert('URL inválida', error.message);
             };
 
-            await api.post('/links', {
-                name,
-                url,
-                category
-            });
+            await request.createLink(name, url, category)
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
@@ -133,9 +129,6 @@ export default function Add() {
 
                     )}
                 />
-
-
-
 
                 <Button title="Adicionar" onPress={() => handleSubmit(handleAdd)()} />
             </View>

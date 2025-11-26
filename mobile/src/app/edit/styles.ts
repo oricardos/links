@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     },
     form: {
         paddingHorizontal: 20,
+        paddingTop: 16,
         gap: 16
     }
 })

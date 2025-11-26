@@ -6,10 +6,9 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import styles from './styles'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { categories } from '@/utils/categories'
-import { LinkStorage, linkStorage } from '@/storage/link-storage'
-import api from '@/services/api'
+import { request } from '@/services/links'
 
 export interface Link {
     id: number;
@@ -20,17 +19,16 @@ export interface Link {
 
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
-    const [links, setLinks] = useState<LinkStorage[] | Link[]>([]);
-    const [link, setLink] = useState<LinkStorage | null>(null);
+    const [links, setLinks] = useState<Link[]>([]);
+    const [link, setLink] = useState<Link | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
     async function getAllLinks() {
         setLoading(true);
         try {
-            const response = await api.get<Link[]>('/links');
-            console.log(response?.data?.data);
-            setLinks(response?.data?.data);
+            const response = await request.listLinks();
+            setLinks(response)
         } catch (error: any) {
             console.error(error)
         } finally {
@@ -38,14 +36,14 @@ export default function Index() {
         }
     }
 
-    function handleDetails(selected: LinkStorage) {
+    function handleDetails(selected: Link) {
         setShowModal(true)
         setLink(selected)
     }
 
     async function removeLink() {
         try {
-            await api.delete(`/links/${link?.id}`)
+            await request.removeLink(link?.id!)
             getAllLinks();
             setShowModal(false);
 
