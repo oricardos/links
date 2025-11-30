@@ -2,6 +2,11 @@ import { StyleSheet } from 'react-native'
 import { colors } from '../../styles/colors'
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     container: {
         flex: 1,
         paddingTop: 62
@@ -23,8 +28,8 @@ const styles = StyleSheet.create({
         width: 38
     },
     links: {
-        borderTopWidth: 1,
-        borderTopColor: colors.gray[600]
+        // borderTopWidth: 1,
+        // borderTopColor: colors.gray[600]
     },
     linksContent: {
         gap: 20,
@@ -44,10 +49,15 @@ const styles = StyleSheet.create({
 
     },
     modalHeader: {
-        width: '100%',
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 32
+        marginBottom: 32,
+        marginRight: 24
+    },
+    headerCategory: {
+        flexDirection: 'row',
+        gap: 8,
     },
     modalCategory: {
         flex: 1,
@@ -73,6 +83,31 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: colors.gray[600],
         paddingVertical: 14
+    },
+    listEmpty: {
+        height: '100%',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    listEmptyText: {
+        textAlign: 'center',
+        fontSize: 24,
+        color: '#747474ff'
+    },
+    addButton: {
+        backgroundColor: colors.green[300],
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        marginTop: 24,
+        gap: 8
+    },
+    addButtonText: {
+        fontSize: 18,
+        color: colors.gray[950]
     }
 })
 

@@ -4,12 +4,12 @@ import { Option } from '@/components/option'
 import { colors } from '@/styles/colors'
 import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
-import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import styles from './styles'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { categories } from '@/utils/categories'
-import { LinkStorage, linkStorage } from '@/storage/link-storage'
-import api from '@/services/api'
+import { request } from '@/services/links'
+import { getCategory } from '@/utils/getCategory'
 
 export interface Link {
     id: number;
@@ -20,16 +20,16 @@ export interface Link {
 
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
-    const [links, setLinks] = useState<LinkStorage[] | Link[]>([]);
-    const [link, setLink] = useState<LinkStorage | null>(null);
+    const [links, setLinks] = useState<Link[]>([]);
+    const [link, setLink] = useState<Link | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
     async function getAllLinks() {
         setLoading(true);
         try {
-            const response = await api.get<Link[]>('/links');
-            setLinks(response?.data?.data);
+            const response = await request.listLinks();
+            setLinks(response)
         } catch (error: any) {
             console.error(error)
         } finally {
@@ -37,14 +37,14 @@ export default function Index() {
         }
     }
 
-    function handleDetails(selected: LinkStorage) {
+    function handleDetails(selected: Link) {
         setShowModal(true)
         setLink(selected)
     }
 
     async function removeLink() {
         try {
-            await api.delete(`/links/${link?.id}`)
+            await request.removeLink(link?.id!)
             getAllLinks();
             setShowModal(false);
 
@@ -105,8 +105,11 @@ export default function Index() {
 
             <Categories onChange={setCategory} selected={category} />
 
-            {loading ? <Text>Carregando</Text> :
-
+            {loading ?
+                <View
+                    style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={colors.green[300]} />
+                </View> :
                 <FlatList
                     style={styles.links}
                     contentContainerStyle={styles.linksContent}
@@ -117,11 +120,25 @@ export default function Index() {
                         <Link
                             name={item.name}
                             url={item.url}
+                            category={item.category}
                             onDetails={() => handleDetails(item)}
                         />
                     )}
                     refreshing={loading}
                     onRefresh={getAllLinks}
+                    ListEmptyComponent={
+                        <View style={styles.listEmpty}>
+                            <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
+                            <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                <MaterialIcons
+                                    name='add'
+                                    size={32}
+                                    color={colors.gray[950]}
+                                />
+                                <Text style={styles.addButtonText}>Adicionar link</Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
                 />
             }
 
@@ -129,8 +146,11 @@ export default function Index() {
                 <View style={styles.modal}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalCategory}>{link?.category}</Text>
-                            <TouchableOpacity onPress={() => setShowModal(false)}>
+                            <View style={styles.headerCategory}>
+                                <MaterialIcons name={getCategory(category)?.icon} size={20} color={colors.green[300]} />
+                                <Text style={styles.modalCategory}>{link?.category}</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => setShowModal(false)} style={{ width: 'auto' }}>
                                 <MaterialIcons name='close' size={20} color={colors.gray[400]} />
                             </TouchableOpacity>
                         </View>

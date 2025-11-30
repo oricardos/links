@@ -7,9 +7,9 @@ import { router } from "expo-router";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useState } from "react";
-import api from "@/services/api";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from 'yup';
+import { request } from "@/services/links";
 
 interface FormData {
     name: string;
@@ -52,11 +52,7 @@ export default function Add() {
                 return Alert.alert('URL inválida', error.message);
             };
 
-            await api.post('/links', {
-                name,
-                url,
-                category
-            });
+            await request.createLink({ name, url, category })
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
@@ -70,7 +66,7 @@ export default function Add() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.navigate('/')}>
+                <TouchableOpacity onPress={() => router.back()}>
                     <MaterialIcons
                         name="arrow-back"
                         size={32}
@@ -92,7 +88,7 @@ export default function Add() {
                         required: 'Este campo é obrigatório',
                         maxLength: {
                             value: 120,
-                            message: 'A URL deve ter no máximo 20 caracteres'
+                            message: 'O Nome deve ter no máximo 120 caracteres'
                         }
                     }}
                     render={({ field: { onChange, value } }) => (
@@ -101,11 +97,11 @@ export default function Add() {
                                 placeholder="Nome"
                                 value={value}
                                 onChangeText={onChange}
+                                style={errors?.name && styles.inputError}
                             />
-                            {errors?.name?.type === 'required' && <Text style={styles.textError}>{errors?.name?.message}</Text>}
+                            {errors?.name && <Text style={styles.textError}>{errors?.name?.message}</Text>}
                         </>
                     )}
-
                 />
 
                 <Controller
@@ -115,7 +111,7 @@ export default function Add() {
                         required: 'Este campo é obrigatório',
                         maxLength: {
                             value: 2000,
-                            message: 'A URL deve ter no máximo 20 caracteres'
+                            message: 'A URL deve ter no máximo 2000 caracteres'
                         }
                     }}
                     render={({ field: { onChange, value } }) => (
@@ -124,6 +120,7 @@ export default function Add() {
                                 placeholder="URL"
                                 value={value}
                                 onChangeText={onChange}
+                                style={errors?.url && styles.inputError}
                                 autoCorrect={false}
                                 autoCapitalize="none"
                             />
@@ -132,9 +129,6 @@ export default function Add() {
 
                     )}
                 />
-
-
-
 
                 <Button title="Adicionar" onPress={() => handleSubmit(handleAdd)()} />
             </View>

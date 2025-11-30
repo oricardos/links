@@ -7,10 +7,15 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        gap: 12
+        gap: 12,
+        marginBottom: 8,
     },
     details: {
         flex: 1,
+    },
+    head: {
+        flexDirection: 'row',
+        gap: 8,
     },
     name: {
         color: colors.gray[100],
