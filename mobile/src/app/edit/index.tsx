@@ -47,7 +47,7 @@ export default function Edit() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.navigate('/')}>
+                <TouchableOpacity onPress={() => router.back()}>
                     <MaterialIcons
                         name="arrow-back"
                         size={32}
