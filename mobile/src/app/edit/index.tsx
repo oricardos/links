@@ -33,7 +33,7 @@ export default function Edit() {
                 return Alert.alert('Categoria', 'Selecione uma categoria')
             }
 
-            await request.editLink(parsedLink.id, name, url, category)
+            await request.editLink({ id: parsedLink.id, name, url, category })
 
             Alert.alert('Sucesso', 'Link editado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }

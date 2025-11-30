@@ -52,7 +52,7 @@ export default function Add() {
                 return Alert.alert('URL inválida', error.message);
             };
 
-            await request.createLink(name, url, category)
+            await request.createLink({ name, url, category })
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
                 { text: 'Ok', onPress: () => router.back() }
