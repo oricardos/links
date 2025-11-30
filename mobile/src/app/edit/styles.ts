@@ -27,6 +27,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 16,
         gap: 16
+    },
+    inputError: {
+        borderColor: 'red',
+        borderWidth: 1,
+    },
+    textError: {
+        color: 'red',
+        marginBottom: 8,
     }
 })
 

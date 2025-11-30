@@ -111,7 +111,7 @@ export default function Add() {
                         required: 'Este campo é obrigatório',
                         maxLength: {
                             value: 2000,
-                            message: 'A URL deve ter no máximo 20 caracteres'
+                            message: 'A URL deve ter no máximo 2000 caracteres'
                         }
                     }}
                     render={({ field: { onChange, value } }) => (

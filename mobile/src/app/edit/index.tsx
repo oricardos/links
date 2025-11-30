@@ -8,26 +8,29 @@ import { Alert, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { useEffect, useState } from "react";
 import { request } from "@/services/links";
+import { Controller, useForm } from "react-hook-form";
+
+interface FormData {
+    name: string;
+    url: string;
+}
 
 export default function Edit() {
     const { link } = useLocalSearchParams();
     const parsedLink = JSON.parse(link as string);
-    const [category, setCategory] = useState<string>('');
-    const [name, setName] = useState<string>('');
-    const [url, setUrl] = useState<string>('');
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+        defaultValues: {
+            name: parsedLink.name,
+            url: parsedLink.url
+        }
+    })
+    const [category, setCategory] = useState(parsedLink.category);
 
-    async function handleEdit() {
+    async function handleEdit(data: FormData) {
+        const { name, url } = data;
         try {
             if (!category) {
                 return Alert.alert('Categoria', 'Selecione uma categoria')
-            }
-
-            if (!name.trim()) {
-                return Alert.alert('Nome', 'Preencha o nome')
-            }
-
-            if (!url.trim()) {
-                return Alert.alert('URL', 'Preencha a URL')
             }
 
             await request.editLink(parsedLink.id, name, url, category)
@@ -40,15 +43,6 @@ export default function Edit() {
             Alert.alert('Erro', 'Não foi possível adicionar o link')
         }
     }
-
-    useEffect(() => {
-        if (parsedLink) {
-            setName(parsedLink.name);
-            setUrl(parsedLink.url);
-            setCategory(parsedLink.category);
-        }
-    }, []);
-
 
     return (
         <View style={styles.container}>
@@ -65,12 +59,58 @@ export default function Edit() {
             </View>
 
             <Text style={styles.label}>Selecione uma categoria</Text>
-            <Categories onChange={setCategory} selected={parsedLink.category || category} />
+            <Categories onChange={setCategory} selected={category} />
 
             <View style={styles.form}>
-                <Input value={name} placeholder="Nome" onChangeText={setName} />
-                <Input value={url} placeholder="URL" onChangeText={setUrl} autoCorrect={false} autoCapitalize="none" />
-                <Button title="Editar" onPress={handleEdit} />
+                <Controller
+                    control={control}
+                    name="name"
+                    rules={{
+                        required: 'Este campo é obrigatório',
+                        maxLength: {
+                            value: 120,
+                            message: 'O Nome deve ter no máximo 120 caracteres'
+                        }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                        <>
+                            <Input
+                                placeholder="Nome"
+                                value={value}
+                                onChangeText={onChange}
+                                style={errors?.name && styles.inputError}
+                            />
+                            {errors?.name && <Text style={styles.textError}>{errors?.name?.message}</Text>}
+                        </>
+                    )}
+                />
+
+                <Controller
+                    control={control}
+                    name="url"
+                    rules={{
+                        required: 'Este campo é obrigatório',
+                        maxLength: {
+                            value: 2000,
+                            message: 'A URL deve ter no máximo 2000 caracteres'
+                        }
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                        <>
+                            <Input
+                                value={value}
+                                placeholder="URL"
+                                onChangeText={onChange}
+                                autoCorrect={false}
+                                autoCapitalize="none"
+                                style={errors?.url && styles.inputError}
+                            />
+                            {errors?.url && <Text style={styles.textError}>{errors?.url?.message}</Text>}
+                        </>
+                    )}
+                />
+
+                <Button title="Editar" onPress={() => handleSubmit(handleEdit)()} />
             </View>
         </View>
     )
