@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     },
     listEmptyText: {
         textAlign: 'center',
-        fontSize: 24,
+        fontSize: 20,
         color: '#747474ff'
     },
     addButton: {
@@ -108,7 +108,28 @@ const styles = StyleSheet.create({
     addButtonText: {
         fontSize: 18,
         color: colors.gray[950]
-    }
+    },
+    pagination: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
+        marginVertical: 16,
+        marginBottom: 16
+    },
+    pageButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 6,
+        backgroundColor: colors.green[300],
+    },
+    disabled: {
+        opacity: 0.5,
+    },
+    pageInfo: {
+        color: colors.gray[300],
+    },
+
 })
 
 export default styles

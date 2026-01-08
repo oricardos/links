@@ -1,5 +1,4 @@
 import api from "./api";
-import { AxiosResponse } from "axios";
 
 interface Link {
     id?: string
@@ -12,6 +11,16 @@ interface LinkResponse {
     success: boolean;
     message: string;
     data: Link[];
+}
+
+interface PaginatedResponse<T> {
+    success: boolean;
+    message: string;
+    data: Link[];
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
 }
 
 export const request = {
@@ -36,5 +45,12 @@ export const request = {
     },
     removeLink: async (linkId: number) => {
         return await api.delete(`/links/${linkId}`)
+    },
+    listPaged: async (page: number, pageSize: number): Promise<PaginatedResponse<Link>> => {
+        const response = await api.get(`/links/paged`, {
+            params: { page, pageSize }
+        });
+
+        return response.data
     }
 }

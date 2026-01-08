@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect } from 'expo-router'
 import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import styles from './styles'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
 import { getCategory } from '@/utils/getCategory'
@@ -24,6 +24,25 @@ export default function Index() {
     const [link, setLink] = useState<Link | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true)
+    const [totalPages, setTotalPages] = useState(1);
+    const PAGE_SIZE = 5
+
+    async function loadPage(currentPage = 1) {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
+
+        const response = await request.listPaged(currentPage, PAGE_SIZE)
+
+        setLinks(response.data);
+        setPage(response.page)
+        setTotalPages(response.totalPages)
+
+        setLoading(false)
+    }
 
     async function getAllLinks() {
         setLoading(true);
@@ -89,6 +108,10 @@ export default function Index() {
         getAllLinks();
     }, [category]));
 
+    useEffect(() => {
+        loadPage(1);
+    }, []);
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -110,36 +133,71 @@ export default function Index() {
                     style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={colors.green[300]} />
                 </View> :
-                <FlatList
-                    style={styles.links}
-                    contentContainerStyle={styles.linksContent}
-                    showsVerticalScrollIndicator={false}
-                    data={links}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <Link
-                            name={item.name}
-                            url={item.url}
-                            category={item.category}
-                            onDetails={() => handleDetails(item)}
-                        />
-                    )}
-                    refreshing={loading}
-                    onRefresh={getAllLinks}
-                    ListEmptyComponent={
-                        <View style={styles.listEmpty}>
-                            <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
-                            <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
-                                <MaterialIcons
-                                    name='add'
-                                    size={32}
-                                    color={colors.gray[950]}
-                                />
-                                <Text style={styles.addButtonText}>Adicionar link</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
-                />
+
+                <>
+
+                    <FlatList
+                        style={styles.links}
+                        contentContainerStyle={styles.linksContent}
+                        showsVerticalScrollIndicator={false}
+                        data={links}
+                        keyExtractor={(item) => String(item.id)}
+                        renderItem={({ item }) => (
+                            <Link
+                                name={item.name}
+                                url={item.url}
+                                category={item.category}
+                                onDetails={() => handleDetails(item)}
+                            />
+                        )}
+                        refreshing={loading}
+                        onRefresh={() => loadPage(1)}
+                        ListEmptyComponent={
+                            <View style={styles.listEmpty}>
+                                <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
+                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                    <MaterialIcons
+                                        name='add'
+                                        size={32}
+                                        color={colors.gray[950]}
+                                    />
+                                    <Text style={styles.addButtonText}>Adicionar link</Text>
+                                </TouchableOpacity>
+                            </View>
+                        }
+                        onEndReachedThreshold={0.3}
+                        ListFooterComponent={
+                            loading ? <ActivityIndicator size="small" /> : null
+                        }
+                    />
+                    <View style={styles.pagination}>
+                        <TouchableOpacity
+                            disabled={page === 1}
+                            style={[
+                                styles.pageButton,
+                                page === 1 && styles.disabled
+                            ]}
+                            onPress={() => loadPage(page - 1)}
+                        >
+                            <Text>Anterior</Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.pageInfo}>
+                            {page} / {totalPages}
+                        </Text>
+
+                        <TouchableOpacity
+                            disabled={page === totalPages}
+                            style={[
+                                styles.pageButton,
+                                page === totalPages && styles.disabled
+                            ]}
+                            onPress={() => loadPage(page + 1)}
+                        >
+                            <Text>Próxima</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
             }
 
             <Modal transparent visible={showModal} animationType='slide'>
