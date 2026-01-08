@@ -10,6 +10,7 @@ import { useCallback, useState, useEffect } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
 import { getCategory } from '@/utils/getCategory'
+import { set } from 'react-hook-form'
 
 export interface Link {
     id: number;
@@ -21,21 +22,21 @@ export interface Link {
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
     const [links, setLinks] = useState<Link[]>([]);
+    const [allLinks, setAllLinks] = useState<Link[]>([]);
     const [link, setLink] = useState<Link | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true)
     const [totalPages, setTotalPages] = useState(1);
-    const PAGE_SIZE = 5
+    const PAGE_SIZE = 10
 
     async function loadPage(currentPage = 1) {
-        if (loading || !hasMore) return;
+        if (loading) return;
 
         setLoading(true);
 
-        const response = await request.listPaged(currentPage, PAGE_SIZE)
+        const response = await request.listPaged(currentPage, PAGE_SIZE);
 
         setLinks(response.data);
         setPage(response.page)
@@ -49,6 +50,7 @@ export default function Index() {
         try {
             const response = await request.listLinks();
             setLinks(response)
+            setAllLinks(response)
         } catch (error: any) {
             console.error(error)
         } finally {
@@ -79,6 +81,14 @@ export default function Index() {
         ])
     }
 
+    function filterCategories(category: string) {
+        if (category === 'Todas') {
+            getAllLinks();
+        }
+        const filtered = allLinks.filter(link => link.category === category);
+        setLinks(filtered);
+    }
+
     async function handleOpenLink() {
         try {
             await Linking.openURL(link!.url)
@@ -104,9 +114,9 @@ export default function Index() {
         }
     }
 
-    useFocusEffect(useCallback(() => {
-        getAllLinks();
-    }, [category]));
+    // useFocusEffect(useCallback(() => {
+    //     getAllLinks();
+    // }, [category]));
 
     useEffect(() => {
         loadPage(1);
@@ -126,7 +136,10 @@ export default function Index() {
                 </TouchableOpacity>
             </View>
 
-            <Categories onChange={setCategory} selected={category} />
+            <Categories onChange={(category) => {
+                filterCategories(category);
+                setCategory(category);
+            }} selected={category} />
 
             {loading ?
                 <View
