@@ -78,7 +78,7 @@ export default function Add() {
             </View>
 
             <Text style={styles.label}>Selecione uma categoria</Text>
-            <Categories onChange={setCategory} selected={category} />
+            <Categories onChange={setCategory} selected={category} addScreen />
 
             <View style={styles.form}>
                 <Controller
