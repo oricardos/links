@@ -55,7 +55,12 @@ export default function Add() {
             await request.createLink({ name, url, category })
 
             Alert.alert('Sucesso', 'Link adicionado com sucesso!', [
-                { text: 'Ok', onPress: () => router.back() }
+                {
+                    text: 'Ok', onPress: () => router.replace({
+                        pathname: "/",
+                        params: { createdCategory: category }
+                    })
+                }
             ]);
         } catch (error) {
             console.error(error);

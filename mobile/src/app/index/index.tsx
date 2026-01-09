@@ -3,7 +3,7 @@ import { Link } from '@/components/link'
 import { Option } from '@/components/option'
 import { colors } from '@/styles/colors'
 import { MaterialIcons } from '@expo/vector-icons'
-import { router, useFocusEffect } from 'expo-router'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
 import styles from './styles'
 import { useCallback, useState, useEffect } from 'react'
@@ -31,6 +31,8 @@ export default function Index() {
     const [totalPages, setTotalPages] = useState(1);
     const PAGE_SIZE = 10
 
+    const { createdCategory } = useLocalSearchParams();
+
     async function loadPage(currentPage = 1) {
         if (loading) return;
 
@@ -38,7 +40,9 @@ export default function Index() {
 
         const response = await request.listPaged(currentPage, PAGE_SIZE);
 
-        setLinks(response.data);
+        const teste = response.data.reverse()
+
+        setLinks(teste);
         setPage(response.page)
         setTotalPages(response.totalPages)
 
@@ -49,8 +53,8 @@ export default function Index() {
         setLoading(true);
         try {
             const response = await request.listLinks();
-            setLinks(response)
-            setAllLinks(response)
+            setLinks(response.reverse())
+            setAllLinks(response.reverse())
         } catch (error: any) {
             console.error(error)
         } finally {
@@ -114,13 +118,22 @@ export default function Index() {
         }
     }
 
+    // TODO CONTINUAR LINKS-24
     // useFocusEffect(useCallback(() => {
-    //     getAllLinks();
-    // }, [category]));
+    //     if (createdCategory && typeof createdCategory === 'string') {
+    //         console.log(1243)
+    //         filterCategories(createdCategory)
+    //         setCategory(createdCategory)
+    //     }
+    // }, [createdCategory]));
 
     useEffect(() => {
         loadPage(1);
     }, []);
+
+    // useEffect(() => {
+    //     console.log(links)
+    // }, [links])
 
     return (
         <View style={styles.container}>
@@ -153,7 +166,7 @@ export default function Index() {
                         style={styles.links}
                         contentContainerStyle={styles.linksContent}
                         showsVerticalScrollIndicator={false}
-                        data={links}
+                        data={links.reverse()}
                         keyExtractor={(item) => String(item.id)}
                         renderItem={({ item }) => (
                             <Link
