@@ -4,13 +4,12 @@ import { Option } from '@/components/option'
 import { colors } from '@/styles/colors'
 import { MaterialIcons } from '@expo/vector-icons'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
-import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator, Share } from 'react-native'
 import styles from './styles'
 import { useCallback, useState, useEffect } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
 import { getCategory } from '@/utils/getCategory'
-import { set } from 'react-hook-form'
 
 export interface Link {
     id: number;
@@ -115,6 +114,18 @@ export default function Index() {
             })
         } catch (error) {
             Alert.alert('Erro', 'Houve um erro')
+        }
+    }
+
+    async function shareLink(url: string | undefined) {
+        if (!url) return;
+
+        try {
+            await Share.share({
+                message: url
+            })
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível compartilhar o link.')
         }
     }
 
@@ -238,13 +249,21 @@ export default function Index() {
                                 <MaterialIcons name='close' size={20} color={colors.gray[400]} />
                             </TouchableOpacity>
                         </View>
-                        <Text style={styles.modalLinkName}>
-                            {link?.name}
-                        </Text>
+                        <View style={styles.linkShareWrapper}>
+                            <View style={styles.nameUrlWrapper}>
+                                <Text style={styles.modalLinkName}>
+                                    {link?.name}
+                                </Text>
 
-                        <Text style={styles.modalUrl}>
-                            {link?.url}
-                        </Text>
+                                <Text style={styles.modalUrl}>
+                                    {link?.url}
+                                </Text>
+                            </View>
+                            <TouchableOpacity onPress={() => shareLink(link?.url)}>
+                                <MaterialIcons name='share' size={20} color={colors.gray[400]} />
+                            </TouchableOpacity>
+                        </View>
+
 
                         <View style={styles.modalFooter}>
                             <Option name='Excluir' icon='delete' variant='secondary' onPress={handleRemove} />

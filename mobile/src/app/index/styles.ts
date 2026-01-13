@@ -129,7 +129,15 @@ const styles = StyleSheet.create({
     pageInfo: {
         color: colors.gray[300],
     },
-
+    linkShareWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        justifyContent: 'space-between',
+    },
+    nameUrlWrapper: {
+        gap: 4,
+    }
 })
 
 export default styles
