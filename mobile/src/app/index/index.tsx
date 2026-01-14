@@ -39,9 +39,6 @@ export default function Index() {
 
         const response = await request.listPaged(currentPage, PAGE_SIZE);
 
-        const teste = response.data.reverse()
-
-        setLinks(teste);
         setPage(response.page)
         setTotalPages(response.totalPages)
 
@@ -84,14 +81,6 @@ export default function Index() {
         ])
     }
 
-    function filterCategories(category: string) {
-        if (category === 'Todas') {
-            getAllLinks();
-        }
-        const filtered = allLinks.filter(link => link.category === category);
-        setLinks(filtered);
-    }
-
     async function handleOpenLink() {
         try {
             await Linking.openURL(link!.url)
@@ -129,22 +118,29 @@ export default function Index() {
         }
     }
 
-    // TODO CONTINUAR LINKS-24
-    // useFocusEffect(useCallback(() => {
-    //     if (createdCategory && typeof createdCategory === 'string') {
-    //         console.log(1243)
-    //         filterCategories(createdCategory)
-    //         setCategory(createdCategory)
-    //     }
-    // }, [createdCategory]));
+    useEffect(() => {
+        if (category === 'Todas') {
+            setLinks(allLinks);
+            return;
+        }
+
+        const filtered = allLinks.filter(
+            link => link.category === category
+        );
+
+        setLinks(filtered);
+    }, [category, allLinks]);
+
+    useEffect(() => {
+        if (createdCategory && typeof createdCategory === 'string') {
+            setCategory(createdCategory);
+        }
+    }, [createdCategory]);
 
     useEffect(() => {
         loadPage(1);
+        getAllLinks();
     }, []);
-
-    // useEffect(() => {
-    //     console.log(links)
-    // }, [links])
 
     return (
         <View style={styles.container}>
@@ -160,10 +156,7 @@ export default function Index() {
                 </TouchableOpacity>
             </View>
 
-            <Categories onChange={(category) => {
-                filterCategories(category);
-                setCategory(category);
-            }} selected={category} />
+            <Categories onChange={setCategory} selected={category} />
 
             {loading ?
                 <View
