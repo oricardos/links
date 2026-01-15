@@ -115,7 +115,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 16,
         marginVertical: 16,
-        marginBottom: 16
+        marginBottom: 16,
+        paddingBottom: 24,
     },
     pageButton: {
         paddingHorizontal: 16,
