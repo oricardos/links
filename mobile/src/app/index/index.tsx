@@ -10,6 +10,7 @@ import { useCallback, useState, useEffect } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
 import { getCategory } from '@/utils/getCategory'
+import api from '@/services/api'
 
 export interface Link {
     id: number;
@@ -32,12 +33,35 @@ export default function Index() {
 
     const { createdCategory } = useLocalSearchParams();
 
-    async function loadPage(currentPage = 1) {
+    async function loadPage(page: number, category: string) {
+        setLoading(true)
+        try {
+            const response = await api.get('/links/paged/', {
+                params: {
+                    page,
+                    pageSize: 10,
+                    category: category === 'Todas' ? undefined : category
+                }
+            })
+
+            setLinks(response.data.data)
+            setPage(response.data.page)
+            setTotalPages(response.data.totalPages)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function oldloadPage(currentPage = 1) {
         if (loading) return;
 
         setLoading(true);
 
         const response = await request.listPaged(currentPage, PAGE_SIZE);
+
+        console.log('response', response)
 
         setPage(response.page)
         setTotalPages(response.totalPages)
@@ -117,30 +141,9 @@ export default function Index() {
             Alert.alert('Erro', 'Não foi possível compartilhar o link.')
         }
     }
-
     useEffect(() => {
-        if (category === 'Todas') {
-            setLinks(allLinks);
-            return;
-        }
-
-        const filtered = allLinks.filter(
-            link => link.category === category
-        );
-
-        setLinks(filtered);
-    }, [category, allLinks]);
-
-    useEffect(() => {
-        if (createdCategory && typeof createdCategory === 'string') {
-            setCategory(createdCategory);
-        }
-    }, [createdCategory]);
-
-    useEffect(() => {
-        loadPage(1);
-        getAllLinks();
-    }, []);
+        loadPage(page, category)
+    }, [category])
 
     return (
         <View style={styles.container}>
@@ -181,7 +184,7 @@ export default function Index() {
                             />
                         )}
                         refreshing={loading}
-                        onRefresh={() => loadPage(1)}
+                        onRefresh={() => loadPage(1, category)}
                         ListEmptyComponent={
                             <View style={styles.listEmpty}>
                                 <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
@@ -207,7 +210,7 @@ export default function Index() {
                                 styles.pageButton,
                                 page === 1 && styles.disabled
                             ]}
-                            onPress={() => loadPage(page - 1)}
+                            onPress={() => loadPage(page - 1, category)}
                         >
                             <Text>Anterior</Text>
                         </TouchableOpacity>
@@ -222,7 +225,7 @@ export default function Index() {
                                 styles.pageButton,
                                 page === totalPages && styles.disabled
                             ]}
-                            onPress={() => loadPage(page + 1)}
+                            onPress={() => loadPage(page + 1, category)}
                         >
                             <Text>Próxima</Text>
                         </TouchableOpacity>
