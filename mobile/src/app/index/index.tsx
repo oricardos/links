@@ -3,13 +3,14 @@ import { Link } from '@/components/link'
 import { Option } from '@/components/option'
 import { colors } from '@/styles/colors'
 import { MaterialIcons } from '@expo/vector-icons'
-import { router, useFocusEffect } from 'expo-router'
-import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { Alert, FlatList, Image, Linking, Modal, Text, TouchableOpacity, View, ActivityIndicator, Share } from 'react-native'
 import styles from './styles'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { categories } from '@/utils/categories'
 import { request } from '@/services/links'
 import { getCategory } from '@/utils/getCategory'
+import api from '@/services/api'
 
 export interface Link {
     id: number;
@@ -21,15 +22,59 @@ export interface Link {
 export default function Index() {
     const [category, setCategory] = useState<string>(categories[0].name);
     const [links, setLinks] = useState<Link[]>([]);
+    const [allLinks, setAllLinks] = useState<Link[]>([]);
     const [link, setLink] = useState<Link | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const PAGE_SIZE = 10
+
+    const { createdCategory } = useLocalSearchParams();
+
+    async function loadPage(page: number, category: string) {
+        setLoading(true)
+        try {
+            const response = await api.get('/links/paged/', {
+                params: {
+                    page,
+                    pageSize: 10,
+                    category: category === 'Todas' ? undefined : category
+                }
+            })
+
+            setLinks(response.data.data)
+            setPage(response.data.page)
+            setTotalPages(response.data.totalPages)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function oldloadPage(currentPage = 1) {
+        if (loading) return;
+
+        setLoading(true);
+
+        const response = await request.listPaged(currentPage, PAGE_SIZE);
+
+        console.log('response', response)
+
+        setPage(response.page)
+        setTotalPages(response.totalPages)
+
+        setLoading(false)
+    }
 
     async function getAllLinks() {
         setLoading(true);
         try {
             const response = await request.listLinks();
-            setLinks(response)
+            setLinks(response.reverse())
+            setAllLinks(response.reverse())
         } catch (error: any) {
             console.error(error)
         } finally {
@@ -85,9 +130,20 @@ export default function Index() {
         }
     }
 
-    useFocusEffect(useCallback(() => {
-        getAllLinks();
-    }, [category]));
+    async function shareLink(url: string | undefined) {
+        if (!url) return;
+
+        try {
+            await Share.share({
+                message: url
+            })
+        } catch (error) {
+            Alert.alert('Erro', 'Não foi possível compartilhar o link.')
+        }
+    }
+    useEffect(() => {
+        loadPage(page, category)
+    }, [category])
 
     return (
         <View style={styles.container}>
@@ -110,36 +166,71 @@ export default function Index() {
                     style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={colors.green[300]} />
                 </View> :
-                <FlatList
-                    style={styles.links}
-                    contentContainerStyle={styles.linksContent}
-                    showsVerticalScrollIndicator={false}
-                    data={links}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <Link
-                            name={item.name}
-                            url={item.url}
-                            category={item.category}
-                            onDetails={() => handleDetails(item)}
-                        />
-                    )}
-                    refreshing={loading}
-                    onRefresh={getAllLinks}
-                    ListEmptyComponent={
-                        <View style={styles.listEmpty}>
-                            <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
-                            <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
-                                <MaterialIcons
-                                    name='add'
-                                    size={32}
-                                    color={colors.gray[950]}
-                                />
-                                <Text style={styles.addButtonText}>Adicionar link</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
-                />
+
+                <>
+
+                    <FlatList
+                        style={styles.links}
+                        contentContainerStyle={styles.linksContent}
+                        showsVerticalScrollIndicator={false}
+                        data={links.reverse()}
+                        keyExtractor={(item) => String(item.id)}
+                        renderItem={({ item }) => (
+                            <Link
+                                name={item.name}
+                                url={item.url}
+                                category={item.category}
+                                onDetails={() => handleDetails(item)}
+                            />
+                        )}
+                        refreshing={loading}
+                        onRefresh={() => loadPage(1, category)}
+                        ListEmptyComponent={
+                            <View style={styles.listEmpty}>
+                                <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
+                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                    <MaterialIcons
+                                        name='add'
+                                        size={32}
+                                        color={colors.gray[950]}
+                                    />
+                                    <Text style={styles.addButtonText}>Adicionar link</Text>
+                                </TouchableOpacity>
+                            </View>
+                        }
+                        onEndReachedThreshold={0.3}
+                        ListFooterComponent={
+                            loading ? <ActivityIndicator size="small" /> : null
+                        }
+                    />
+                    <View style={styles.pagination}>
+                        <TouchableOpacity
+                            disabled={page === 1}
+                            style={[
+                                styles.pageButton,
+                                page === 1 && styles.disabled
+                            ]}
+                            onPress={() => loadPage(page - 1, category)}
+                        >
+                            <Text>Anterior</Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.pageInfo}>
+                            {page} / {totalPages}
+                        </Text>
+
+                        <TouchableOpacity
+                            disabled={page === totalPages}
+                            style={[
+                                styles.pageButton,
+                                page === totalPages && styles.disabled
+                            ]}
+                            onPress={() => loadPage(page + 1, category)}
+                        >
+                            <Text>Próxima</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
             }
 
             <Modal transparent visible={showModal} animationType='slide'>
@@ -154,13 +245,21 @@ export default function Index() {
                                 <MaterialIcons name='close' size={20} color={colors.gray[400]} />
                             </TouchableOpacity>
                         </View>
-                        <Text style={styles.modalLinkName}>
-                            {link?.name}
-                        </Text>
+                        <View style={styles.linkShareWrapper}>
+                            <View style={styles.nameUrlWrapper}>
+                                <Text style={styles.modalLinkName}>
+                                    {link?.name}
+                                </Text>
 
-                        <Text style={styles.modalUrl}>
-                            {link?.url}
-                        </Text>
+                                <Text style={styles.modalUrl}>
+                                    {link?.url}
+                                </Text>
+                            </View>
+                            <TouchableOpacity onPress={() => shareLink(link?.url)}>
+                                <MaterialIcons name='share' size={20} color={colors.gray[400]} />
+                            </TouchableOpacity>
+                        </View>
+
 
                         <View style={styles.modalFooter}>
                             <Option name='Excluir' icon='delete' variant='secondary' onPress={handleRemove} />
