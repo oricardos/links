@@ -71,7 +71,13 @@ export default function Add() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
+                <TouchableOpacity onPress={() => {
+                    if (router.canGoBack()) {
+                        router.back()
+                    } else {
+                        router.replace('/')
+                    }
+                }}>
                     <MaterialIcons
                         name="arrow-back"
                         size={32}

@@ -141,6 +141,7 @@ export default function Index() {
             Alert.alert('Erro', 'Não foi possível compartilhar o link.')
         }
     }
+
     useEffect(() => {
         loadPage(page, category)
     }, [category])
