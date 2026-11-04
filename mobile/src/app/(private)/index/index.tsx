@@ -122,7 +122,7 @@ export default function Index() {
             }
 
             router.navigate({
-                pathname: '/edit',
+                pathname: '/links/edit',
                 params: { link: JSON.stringify(link) }
             })
         } catch (error) {
@@ -151,7 +151,7 @@ export default function Index() {
             <View style={styles.header}>
                 <Image style={styles.logo} src='https://raw.githubusercontent.com/rocketseat-education/react-native-intro-course-links/refs/heads/main/src/assets/logo.png' />
 
-                <TouchableOpacity onPress={() => router.navigate("/add")}>
+                <TouchableOpacity onPress={() => router.navigate("/links/add")}>
                     <MaterialIcons
                         name='add'
                         size={32}
@@ -189,7 +189,7 @@ export default function Index() {
                         ListEmptyComponent={
                             <View style={styles.listEmpty}>
                                 <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
-                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/links/add")}>
                                     <MaterialIcons
                                         name='add'
                                         size={32}
@@ -201,7 +201,7 @@ export default function Index() {
                         }
                         onEndReachedThreshold={0.3}
                         ListFooterComponent={
-                            loading ? <ActivityIndicator size="small" /> : null
+                            loading ? <ActivityIndicator size="small" /> : undefined
                         }
                     />
                     <View style={styles.pagination}>
