@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     View,
     Text,
@@ -7,11 +8,68 @@ import {
     Platform,
     ScrollView,
     StyleSheet,
+    Button
 } from 'react-native';
+import * as Yup from 'yup';
+
 
 import { colors } from '../../styles/colors';
 
+export const useValidation = () => {
+    return Yup.object().shape({
+        email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
+        senha: Yup.string().min(8, 'A senha deve ter no mínimo 8 caracteres').required('Senha é obrigatória')
+    })
+}
+
 export default function Login() {
+    const yupSchema = useValidation();
+    const [sucesso, setSucesso] = React.useState('');
+    const [formData, setFormData] = React.useState({
+        email: '',
+        senha: '',
+    });
+    const [errors, setErrors] = React.useState({
+        email: '',
+        senha: '',
+    });
+
+    const handleLogin = async (event) => {
+        console.log("entrei aqui")
+        event.preventDefault();
+        setErrors({
+            email: '',
+            senha: '',
+        });
+
+
+        try {
+            await yupSchema.validate(formData, {
+                abortEarly: false,
+            })
+
+            setSucesso('Cadastro enviado!')
+            console.log("Sucesso: ", sucesso)
+        } catch (error) {
+            console.error(error);
+            if (error instanceof Yup.ValidationError) {
+                error.inner.forEach(validationFailed => {
+                    console.log('Erro de validação:', validationFailed.path, validationFailed.message);
+                    setErrors(prevErrors => {
+                        return {
+                            ...prevErrors,
+                            [validationFailed.path]: validationFailed.message
+                        }
+                    })
+                })
+            } else {
+                console.error('Erro desconhecido:', error);
+            }
+        }
+
+        console.log("Validando dados: ", formData)
+    }
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -54,6 +112,7 @@ export default function Login() {
                             autoCapitalize="none"
                             autoCorrect={false}
                         />
+                        {errors.email ? <Text style={{ color: 'red' }}>{errors.email}</Text> : null}
                     </View>
 
                     <View style={styles.inputGroup}>
@@ -66,13 +125,19 @@ export default function Login() {
                             secureTextEntry
                             autoCapitalize="none"
                         />
+                        {errors.senha ? <Text style={{ color: 'red' }}>{errors.senha}</Text> : null}
                     </View>
 
-                    <View style={styles.loginButton}>
+                    <Button
+                        onPress={handleLogin}
+                        title="Entrar"
+                    />
+
+                    {/* <Button style={styles.loginButton} onPress={handleLogin}>
                         <Text style={styles.loginButtonText}>
                             Entrar
                         </Text>
-                    </View>
+                    </Button> */}
                 </View>
 
                 <Text style={styles.footer}>
