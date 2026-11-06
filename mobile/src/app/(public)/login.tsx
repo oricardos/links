@@ -14,6 +14,7 @@ import * as Yup from 'yup';
 
 
 import { colors } from '../../styles/colors';
+import { request } from '@/services/auth';
 
 export const useValidation = () => {
     return Yup.object().shape({
@@ -48,8 +49,9 @@ export default function Login() {
                 abortEarly: false,
             })
 
-            setSucesso('Cadastro enviado!')
-            console.log("Sucesso: ", sucesso)
+            const response = await request.login(formData);
+
+            console.log("Login realizado:", response);
         } catch (error) {
             console.error(error);
             if (error instanceof Yup.ValidationError) {
@@ -68,6 +70,13 @@ export default function Login() {
         }
 
         console.log("Validando dados: ", formData)
+    }
+
+    const handleChange = (campo: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [campo]: value
+        }))
     }
 
     return (
@@ -111,6 +120,8 @@ export default function Login() {
                             keyboardType="email-address"
                             autoCapitalize="none"
                             autoCorrect={false}
+                            value={formData.email}
+                            onChangeText={(value) => handleChange('email', value)}
                         />
                         {errors.email ? <Text style={{ color: 'red' }}>{errors.email}</Text> : null}
                     </View>
@@ -124,6 +135,8 @@ export default function Login() {
                             placeholderTextColor={colors.gray[500]}
                             secureTextEntry
                             autoCapitalize="none"
+                            value={formData.senha}
+                            onChangeText={(value) => handleChange('senha', value)}
                         />
                         {errors.senha ? <Text style={{ color: 'red' }}>{errors.senha}</Text> : null}
                     </View>
