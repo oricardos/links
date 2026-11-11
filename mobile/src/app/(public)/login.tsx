@@ -15,6 +15,7 @@ import * as Yup from 'yup';
 
 import { colors } from '../../styles/colors';
 import { request } from '@/services/auth';
+import { getToken } from '@/services/token';
 
 export const useValidation = () => {
     return Yup.object().shape({
@@ -36,7 +37,6 @@ export default function Login() {
     });
 
     const handleLogin = async (event) => {
-        console.log("entrei aqui")
         event.preventDefault();
         setErrors({
             email: '',
@@ -50,8 +50,9 @@ export default function Login() {
             })
 
             const response = await request.login(formData);
+            const tokenSalvo = await getToken();
 
-            console.log("Login realizado:", response);
+            console.log("Login realizado com sucesso!");
         } catch (error) {
             console.error(error);
             if (error instanceof Yup.ValidationError) {
@@ -68,8 +69,6 @@ export default function Login() {
                 console.error('Erro desconhecido:', error);
             }
         }
-
-        console.log("Validando dados: ", formData)
     }
 
     const handleChange = (campo: string, value: string) => {
