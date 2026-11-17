@@ -11,6 +11,7 @@ import {
     Button
 } from 'react-native';
 import * as Yup from 'yup';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 import { colors } from '../../styles/colors';
@@ -35,6 +36,7 @@ export default function Login() {
         email: '',
         senha: '',
     });
+    const { signIn } = useAuth();
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -50,9 +52,8 @@ export default function Login() {
             })
 
             const response = await request.login(formData);
-            const tokenSalvo = await getToken();
 
-            console.log("Login realizado com sucesso!");
+            await signIn(response.token);
         } catch (error) {
             console.error(error);
             if (error instanceof Yup.ValidationError) {

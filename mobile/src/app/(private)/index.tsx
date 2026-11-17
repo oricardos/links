@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
 
 export default function PrivateIndex() {
-    return <Redirect href="/index" />;
+    return <Redirect href="/(private)/home/" />;
 }
