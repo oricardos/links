@@ -25,12 +25,12 @@ interface PaginatedResponse<T> {
 
 export const request = {
     listLinks: async () => {
-        const response = await api.get('/links')
-
-        return response.data.data;
+        const response = await api.get('/Links')
+        // console.log('Response from listLinks:', response.data);
+        return response.data;
     },
     createLink: async ({ name, url, category }: Link): Promise<LinkResponse> => {
-        return await api.post('/links', {
+        return await api.post('/Links', {
             name,
             url,
             category

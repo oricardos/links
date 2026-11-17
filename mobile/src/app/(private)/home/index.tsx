@@ -33,26 +33,20 @@ export default function Index() {
 
     const { createdCategory } = useLocalSearchParams();
 
-    async function loadPage(page: number, category: string) {
-        setLoading(true)
-        try {
-            const response = await api.get('/links/paged/', {
-                params: {
-                    page,
-                    pageSize: 10,
-                    category: category === 'Todas' ? undefined : category
-                }
-            })
+    // async function loadPage(page: number, category: string) {
+    //     setLoading(true)
+    //     try {
+    //         const response = await api.get('/Links')
 
-            setLinks(response.data.data)
-            setPage(response.data.page)
-            setTotalPages(response.data.totalPages)
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    //         setLinks(response.data.data)
+    //         setPage(response.data.page)
+    //         setTotalPages(response.data.totalPages)
+    //     } catch (error) {
+    //         console.error(error)
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     async function oldloadPage(currentPage = 1) {
         if (loading) return;
@@ -60,8 +54,6 @@ export default function Index() {
         setLoading(true);
 
         const response = await request.listPaged(currentPage, PAGE_SIZE);
-
-        console.log('response', response)
 
         setPage(response.page)
         setTotalPages(response.totalPages)
@@ -73,12 +65,13 @@ export default function Index() {
         setLoading(true);
         try {
             const response = await request.listLinks();
+
             setLinks(response.reverse())
             setAllLinks(response.reverse())
         } catch (error: any) {
-            console.error(error)
+            console.error('Erro ao buscar links:', error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
@@ -122,7 +115,7 @@ export default function Index() {
             }
 
             router.navigate({
-                pathname: '/edit',
+                pathname: '/links/edit',
                 params: { link: JSON.stringify(link) }
             })
         } catch (error) {
@@ -143,15 +136,19 @@ export default function Index() {
     }
 
     useEffect(() => {
-        loadPage(page, category)
+        // loadPage(page, category)
     }, [category])
+
+    useEffect(() => {
+        getAllLinks();
+    }, [])
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Image style={styles.logo} src='https://raw.githubusercontent.com/rocketseat-education/react-native-intro-course-links/refs/heads/main/src/assets/logo.png' />
 
-                <TouchableOpacity onPress={() => router.navigate("/add")}>
+                <TouchableOpacity onPress={() => router.navigate("/links/add")}>
                     <MaterialIcons
                         name='add'
                         size={32}
@@ -185,11 +182,11 @@ export default function Index() {
                             />
                         )}
                         refreshing={loading}
-                        onRefresh={() => loadPage(1, category)}
+                        // onRefresh={() => loadPage(1, category)}
                         ListEmptyComponent={
                             <View style={styles.listEmpty}>
                                 <Text style={styles.listEmptyText}>Nenhum Link Encontrado</Text>
-                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/add")}>
+                                <TouchableOpacity style={styles.addButton} onPress={() => router.navigate("/links/add")}>
                                     <MaterialIcons
                                         name='add'
                                         size={32}
@@ -201,7 +198,7 @@ export default function Index() {
                         }
                         onEndReachedThreshold={0.3}
                         ListFooterComponent={
-                            loading ? <ActivityIndicator size="small" /> : null
+                            loading ? <ActivityIndicator size="small" /> : undefined
                         }
                     />
                     <View style={styles.pagination}>
@@ -211,7 +208,7 @@ export default function Index() {
                                 styles.pageButton,
                                 page === 1 && styles.disabled
                             ]}
-                            onPress={() => loadPage(page - 1, category)}
+                        // onPress={() => loadPage(page - 1, category)}
                         >
                             <Text>Anterior</Text>
                         </TouchableOpacity>
@@ -226,7 +223,7 @@ export default function Index() {
                                 styles.pageButton,
                                 page === totalPages && styles.disabled
                             ]}
-                            onPress={() => loadPage(page + 1, category)}
+                        // onPress={() => loadPage(page + 1, category)}
                         >
                             <Text>Próxima</Text>
                         </TouchableOpacity>
